@@ -9,10 +9,21 @@ const psApps = require('./playstore-data.js');
 // Create GET endpoint /apps
 app.get('/apps', (req, res) => {
     // endpoint will accept paramters: sort & genre
-    const { sort, genre } = req.query;
+    const { genre ="", sort } = req.query;
 
-    // return complete list of apps in the array
-    let results = [...psApps];
+    let results = psApps.filter ( app =>
+        app.Genres.toLowerCase().includes(genre.toLowerCase()) );
+
+    // genre = if selected is one of ['Action', 'Puzzle', 'Strategy', 'Casual', 'Arcade', 'Card'] or else error. filter by genre
+    if (genre) {
+        const genreOptions = ['Action', 'Puzzle', 'Strategy', 'Casual', 'Arcade', 'Card'];
+
+        let genreSelected = genre.charAt(0).toUpperCase() + genre.substring(1);
+
+        if (!genreOptions.includes(genreSelected)) {
+            return res.status(400).send('Genre must be Action, Puzzle, Strategy, Casual, Arcade, or Card.');
+        }
+    }
 
     // sort = "rating" or "app", or else do not sort
     if (sort) {
@@ -28,22 +39,8 @@ app.get('/apps', (req, res) => {
         });
     }
 
-    // genre = if selected is one of ['Action', 'Puzzle', 'Strategy', 'Casual', 'Arcade', 'Card'] or else error. filter by genre
-    // if (genre) {
-    //     const genreOptions = ['Action', 'Puzzle', 'Strategy', 'Casual', 'Arcade', 'Card'];
-
-    //     if (!genreOptions.includes(genre)) {
-    //         return res.status(400).send('Genre must be Action, Puzzle, Strategy, Casual, Arcade, or Card.');
-    //     }
-
-    //     //filter results by genre
-    //     results = results.filter ( app => {
-    //         app["Genres"].includes(genre)
-    //     })
-
-    // }
-    res.send(results)
-
+    
+    res.status(200).json(results)
 })
 
 
